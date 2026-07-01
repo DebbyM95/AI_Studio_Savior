@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Itineraries
+    match /itineraries/{itineraryId} {
+      function isValidItinerary(data) {
+        return data.userId is string &&
+               data.destination is string && data.destination.size() <= 200 &&
+               data.createdAt is timestamp;
+      }
+
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidItinerary(request.resource.data) && 
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid &&
+                      isValidItinerary(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Bookings
+    match /bookings/{bookingId} {
+      function isValidBooking(data) {
+        return data.userId is string &&
+               data.type in ['flight', 'hotel', 'activity', 'car_rental'] &&
+               data.status in ['pending', 'confirmed', 'cancelled'] &&
+               data.price is number &&
+               data.createdAt is timestamp;
+      }
+
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidBooking(request.resource.data) && 
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId);
+      allow write: if isSignedIn() && (request.auth.uid == userId);
+    }
+
+    // Price Alerts
+    match /price_alerts/{alertId} {
+      function isValidPriceAlert(data) {
+        return data.email is string && data.email.size() <= 128 &&
+               data.origin is string && data.origin.size() <= 10 &&
+               data.destination is string && data.destination.size() <= 10 &&
+               data.frequency in ['daily', 'weekly', 'monthly'] &&
+               data.createdAt is timestamp;
+      }
+
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.email == request.auth.token.email);
+      allow create: if isValidPriceAlert(request.resource.data) &&
+                      (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == "" || (isSignedIn() && request.resource.data.userId == request.auth.uid));
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.email == request.auth.token.email) &&
+                      isValidPriceAlert(request.resource.data);
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.email == request.auth.token.email);
+    }
+  }
+}

@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Fraunces", serif;
+  
+  --color-brand-indigo: #14E8C8;
+  --color-brand-teal: #14E8C8;
+  --color-brand-gold: #FBBF24;
+  
+  --color-bg-deep: #060D1F;
+  --color-bg-card: #0F172A;
+  --color-bg-hover: #1E293B;
+  
+  --color-text-primary: #E8EDF5;
+  --color-text-secondary: #7A8BA8;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-deep text-[#E8EDF5] font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

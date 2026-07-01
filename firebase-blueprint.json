@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "Itinerary": {
+      "title": "Itinerary",
+      "description": "A travel itinerary planned by the user or assistant.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this itinerary." },
+        "destination": { "type": "string", "description": "Primary destination name." },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "activities": {
+          "type": "array",
+          "items": { "type": "object", "properties": {
+            "day": { "type": "integer" },
+            "time": { "type": "string" },
+            "description": { "type": "string" },
+            "location": { "type": "string" }
+          }}
+        },
+        "budget": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "destination", "createdAt"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "A travel booking (flight, hotel, etc.).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["flight", "hotel", "activity", "car_rental"] },
+        "details": { "type": "object" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "itineraryId": { "type": "string", "description": "Optional link to an itinerary." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "details", "status", "price", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User preferences and profile data.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "favoriteDestinations": { "type": "array", "items": { "type": "string" } },
+            "budgetLevel": { "type": "string", "enum": ["budget", "moderate", "luxury"] }
+          }
+        }
+      },
+      "required": ["userId"]
+    },
+    "PriceAlert": {
+      "title": "Price Alert",
+      "description": "User subscription for flight price tracking alerts.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "origin": { "type": "string" },
+        "destination": { "type": "string" },
+        "frequency": { "type": "string", "enum": ["daily", "weekly", "monthly"] },
+        "targetPrice": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "origin", "destination", "frequency", "createdAt"]
+    }
+  },
+  "firestore": {
+    "itineraries/{itineraryId}": {
+      "schema": "Itinerary",
+      "description": "Collection of travel itineraries."
+    },
+    "bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Collection of user bookings."
+    },
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles and settings."
+    },
+    "price_alerts/{alertId}": {
+      "schema": "PriceAlert",
+      "description": "Subscriptions for flight price tracking alerts."
+    }
+  }
+}

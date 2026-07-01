@@ -1,0 +1,8 @@
+{
+  "name": "Savior",
+  "description": "A comprehensive travel aggregator for flights, hotels, and experiences with an AI booking agent and itinerary planner.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
